@@ -15,17 +15,15 @@
             var item = new LineItem(25);
             po.TryAddItem(item);
 
-            Assert.False(item.TryUpdateCost(51, po));
+            Assert.False(item.TryUpdateCost(51, po)); // it's possible to use the wrong PO
         }
 
         [Fact]
         public void UpdateItemAboveLimitReturnsFalseWithRepository()
         {
             var repo = new InMemoryPurchaseOrderRepository();
-
             var po = new PurchaseOrder() { SpendLimit = 100 };
             repo.Add(po);
-
             po.TryAddItem(new LineItem(50));
             var item = new LineItem(25);
             po.TryAddItem(item);
