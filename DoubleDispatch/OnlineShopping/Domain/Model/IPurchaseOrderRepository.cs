@@ -5,6 +5,8 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
 {
     interface IPurchaseOrderRepository
     {
+        void Add(PurchaseOrder purchaseOrder);
+
         PurchaseOrder GetById(int id);
     }
 }

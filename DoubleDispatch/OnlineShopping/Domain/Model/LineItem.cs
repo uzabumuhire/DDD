@@ -62,5 +62,23 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
             }
             return false;
         }
+
+        // Double dispatch through the domain service. Why do we need to pass
+        // services around as method parameters - why don't we just inject
+        // services into our aggregate/entities? There are a lot of reasons
+        // to avoid going down this path. You want to be able to create you
+        // entities and value objects anywhere, without dependencies. Also,
+        // you'll run into all kinds of problems trying to get your ORM to give
+        // you properly configured entities if, in addition to state from your
+        // data store, it also needs to populate its dependent services.
+        public bool TryUpdateCost(decimal cost, IPurchaseOrderService poService)
+        {
+            if (poService.WouldUpdateBeUnderLimit(PurchaseOrderId, this, cost))
+            {
+                Cost = cost;
+                return true;
+            }
+            return false;
+        }
     }
 }

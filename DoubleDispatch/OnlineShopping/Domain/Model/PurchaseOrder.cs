@@ -46,5 +46,16 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
             }
             return false;
         }
+
+        // Double dispatch through the domain service.
+        public bool TryAddItem(LineItem item, IPurchaseOrderService poService)
+        {
+            if (poService.WouldAddBeUnderLimit(this, item))
+            {
+                _items.Add(item);
+                return true;
+            }
+            return false;
+        }
     }
 }
