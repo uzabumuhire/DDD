@@ -1,4 +1,7 @@
-﻿namespace DoubleDispatch.OnlineShopping
+﻿// From Steve Smith's blog (ardalis.com) :
+// https://ardalis.com/double-dispatch-in-c-and-ddd/
+
+namespace DoubleDispatch.OnlineShopping
 {
     using DoubleDispatch.OnlineShopping.Domain.Model;
 

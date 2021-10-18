@@ -1,4 +1,7 @@
-﻿namespace DoubleDispatch.OnlineShopping.Tests
+﻿// From Steve Smith's blog (ardalis.com) :
+// https://ardalis.com/double-dispatch-in-c-and-ddd/
+
+namespace DoubleDispatch.OnlineShopping.Tests
 {
     using Xunit;
 

@@ -1,4 +1,7 @@
-﻿namespace DoubleDispatch.OnlineShopping.Domain.Repositories
+﻿// From Steve Smith's blog (ardalis.com) :
+// https://ardalis.com/double-dispatch-in-c-and-ddd/
+
+namespace DoubleDispatch.OnlineShopping.Domain.Repositories
 {
     using System.Collections.Generic;
 
