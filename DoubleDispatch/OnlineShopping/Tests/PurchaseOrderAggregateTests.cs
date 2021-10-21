@@ -1,5 +1,11 @@
-﻿// From Steve Smith's blog (ardalis.com) :
+﻿// References :
+
+// - Steve Smith's article on his blog (ardalis.com)
 // https://ardalis.com/double-dispatch-in-c-and-ddd/
+
+// - Jimmy Boggard's articles on LosTechies's blog (lostechies.com)
+// https://lostechies.com/jimmybogard/2010/02/24/strengthening-your-domain-aggregate-construction/
+// https://lostechies.com/jimmybogard/2010/03/10/strengthening-your-domain-encapsulated-collections/
 
 namespace DoubleDispatch.OnlineShopping.Tests
 {
@@ -12,7 +18,7 @@ namespace DoubleDispatch.OnlineShopping.Tests
     public class PurchaseOrderAggregateTests
     {
         [Fact]
-        public void UpdateItemAboveLimitReturnsFalse()
+        public void Update_item_above_limit_is_invalid()
         {
             var po = new PurchaseOrder() { SpendLimit = 100 };
             po.TryAddItem(new LineItem(50));
@@ -23,7 +29,7 @@ namespace DoubleDispatch.OnlineShopping.Tests
         }
 
         [Fact]
-        public void UpdateItemAboveLimitReturnsFalseWithRepository()
+        public void Update_item_above_limit_is_invalid_using_repository()
         {
             var repo = new InMemoryPurchaseOrderRepository();
             var po = new PurchaseOrder() { SpendLimit = 100 };
@@ -36,7 +42,7 @@ namespace DoubleDispatch.OnlineShopping.Tests
         }
 
         [Fact]
-        public void UpdateItemAboveLimitReturnsFalseWithService()
+        public void Update_item_above_limit_is_invalid_using_service()
         {
             var purchaseOrderRepo = new InMemoryPurchaseOrderRepository();
             var purchaseOrderService = new PurchaseOrderService(purchaseOrderRepo);
@@ -50,7 +56,7 @@ namespace DoubleDispatch.OnlineShopping.Tests
         }
 
         [Fact]
-        public void AddItemAboveLimitReturnsFalse()
+        public void Add_item_above_limit_is_not_valid()
         {
             var po = new PurchaseOrder() { SpendLimit = 100 };
             po.TryAddItem(new LineItem(50));
@@ -59,7 +65,7 @@ namespace DoubleDispatch.OnlineShopping.Tests
         }
 
         [Fact]
-        public void AddItemAboveLimitReturnsFalseWithService()
+        public void Add_item_above_limit_is_not_valid_using_service()
         {
             var purchaseOrderRepo = new InMemoryPurchaseOrderRepository();
             var purchaseOrderService = new PurchaseOrderService(purchaseOrderRepo);
@@ -69,6 +75,28 @@ namespace DoubleDispatch.OnlineShopping.Tests
             var item = new LineItem(51);
 
             Assert.False(po.TryAddItem(item, purchaseOrderService));
+        }
+
+        [Fact]
+        public void Order_is_local_when_customer_province_and_order_billing_province_are_the_same()
+        {
+            var customer = new Customer { Province = "Kalundborg" };
+            var po = new PurchaseOrder
+            {
+                BillingProvince = "Kalundborg",
+                Customer = customer
+            };
+
+            Assert.True(po.IsLocal());
+        }
+
+        [Fact]
+        public void Add_the_order_to_the_customers_order_lists_when_an_order_is_created()
+        {
+            var customer = new Customer();
+            var purchaseOrder = new PurchaseOrder(customer);
+
+            Assert.Contains(customer.PurchaseOrders, po => po.Id == po.Id);
         }
     }
 }
