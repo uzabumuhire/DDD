@@ -11,6 +11,7 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
     class Fee
     {
         private List<Payment> _payments = new();
+
         public Fee(decimal amount, Customer customer)
         {
             Amount = amount;
@@ -18,8 +19,10 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
 
         public decimal Amount { get; }
 
+        // Determines the Fee’s balance.
         public decimal Balance { get; private set; }
 
+        // A Customer can make Payments against a charged Fees.
         public Payment AddPayment(decimal paymentAmount)
         {
             var payment = new Payment(paymentAmount, this);
@@ -27,6 +30,7 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
             return payment;
         }
 
+        // Store a calculated balance for performance and querying abilities reasons.
         public void RecalculateBalance()
         {
             var totalApplied = _payments.Sum(payment => payment.Amount);

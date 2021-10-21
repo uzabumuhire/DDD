@@ -18,8 +18,29 @@ namespace DoubleDispatch.OnlineShopping.Tests
 
             var fee = customer.ChargeFee(100m);
 
+            
+
+            // To establish the relationship between Fee and Payment,
+            // we have the AddPayment method, which acts as a simple
+            // facade over the internal list.  
             var payment = fee.AddPayment(25m);
+
+            // But what’s with that extra “RecalculateBalance” method?
+            // In many codebases, that RecalculateBalance method would
+            // be in a BalanceCalculationService, reinforcing an anemic
+            // domain.
             fee.RecalculateBalance();
+
+            // Isn’t the act of recording a payment a complete operation?
+            // In the real physical world, when I give a person money, t
+            // he entire transaction is completed as a whole.  Either it
+            // all completes successfully, or the transaction is invalid.
+
+            // How can I add a payment and the balance not be immediately
+            // updated? It’s rather confusing to have to “remember” to use
+            // these extra calculation services and helper methods, just
+            // because our domain objects are too dumb to handle it
+            // themselves.
 
             Assert.Equal(25m, payment.Amount);
             Assert.Equal(75m, fee.Balance);

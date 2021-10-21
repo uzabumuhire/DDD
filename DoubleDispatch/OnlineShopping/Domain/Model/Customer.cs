@@ -18,8 +18,10 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
 
         public IEnumerable<PurchaseOrder> PurchaseOrders => _purchaseOrders;
 
+        // All the Customer’s Fees.
         public IEnumerable<Fee> Fees => _fees;
-        
+
+        // Charge a Fee against a Customer.
         public Fee ChargeFee(decimal amount)
         {
             var fee = new Fee(amount, this);
