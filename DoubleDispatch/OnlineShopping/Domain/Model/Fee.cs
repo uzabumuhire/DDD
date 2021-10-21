@@ -39,17 +39,18 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
             return payment;
         }
 
+        // It could be argued that the Fee shouldn’t be responsible for how the balance
+        // is calculated, but instead only ensure that when a payment is recorded,
+        // the balance is updated.
+
+        // The problem comes in when calculating the balance becomes more difficult.
+        // We might have a rather complex method for calculating payments, we might
+        // have recurring payments, transfers, debits, credits and so on.  This might
+        // become too much responsibility for the Fee object.
+
         // Store a calculated balance for performance and querying abilities reasons.
         private void RecalculateBalance()
         {
-            // Made the Recalculate method private, as this is an implementation detail
-            // of how the Fee object keeps the balance consistent. From someone using
-            // the Fee object, we don’t care how the Fee object keeps itself consistent,
-            // we only want to care that it is consistent.
-
-            // The public contour of the Fee object is simplified as well. We only expose
-            // operations that we want to support, captured in the names of our ubiquitous
-            // language. The “How” is encapsulated behind the aggregate root boundary.
             var totalApplied = _payments.Sum(payment => payment.Amount);
             Balance = Amount - totalApplied;
         }
