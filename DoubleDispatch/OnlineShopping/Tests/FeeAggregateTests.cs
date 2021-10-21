@@ -42,6 +42,16 @@ namespace DoubleDispatch.OnlineShopping.Tests
             // because our domain objects are too dumb to handle it
             // themselves.
 
+            // When we called the AddPayment method, we left our Fee aggregate
+            // root in an in-between state. It had a Payment, yet its balance
+            // was incorrect. If Fees are supposed to act as consistency
+            // boundaries, we’ve violated that consistency with this invalid
+            // state.
+
+            // This is the Inappropriate Intimacy code smell. Inappropriate
+            // Intimacy is one of the biggest indicators of an anemic domain
+            // model. The behavior is there, but just in the wrong place.
+
             Assert.Equal(25m, payment.Amount);
             Assert.Equal(75m, fee.Balance);
         }
