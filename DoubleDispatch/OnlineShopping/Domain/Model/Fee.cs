@@ -1,7 +1,8 @@
 ﻿// References :
 
-// - Jimmy Boggard's article on LosTechies's blog (lostechies.com)
-// https://lostechies.com/jimmybogard/2010/03/24/strengthening-your-domain-encapsulating-operations/https://lostechies.com/jimmybogard/2010/02/24/strengthening-your-domain-aggregate-construction/
+// - Jimmy Boggard's articles on LosTechies's blog (lostechies.com)
+// https://lostechies.com/jimmybogard/2010/03/24/strengthening-your-domain-encapsulating-operations/
+// https://lostechies.com/jimmybogard/2010/03/30/strengthening-your-domain-the-double-dispatch-pattern/
 
 namespace DoubleDispatch.OnlineShopping.Domain.Model
 {
@@ -22,37 +23,43 @@ namespace DoubleDispatch.OnlineShopping.Domain.Model
         // Determines the Fee’s balance.
         public decimal Balance { get; private set; }
 
+        public IEnumerable<Payment> Payments => _payments;
+
+        // When a domain object begins to contain too many responsibilities,
+        // we start to break out those extra responsibilities into things like
+        // value objects and domain services. This does not mean we have to
+        // give up consistency and closure of operations, however. With the use
+        // of the double dispatch pattern, we can avoid anemic domain models,
+        // as well as the attempt to inject services into our domain model.
+        // Our methods stay very intention-revealing, showing exactly what is
+        // needed to fulfill a request of recording a payment.
+
         // A Customer can make Payments against a charged Fees.
-        public Payment RecordPayment(decimal paymentAmount)
+        public Payment RecordPayment(
+            decimal paymentAmount, 
+            IBalanceCalculatorService balanceCalculatorService)
         {
             var payment = new Payment(paymentAmount, this);
             _payments.Add(payment);
 
-            // Enforce the aggregate boundaries with encapsulation, that is encapsulating
-            // the operation of recording a fee.  Even the name of “AddPayment” could be
-            // improved, to “RecordPayment”.  The act of recording a payment in the Real
-            // World involves adding the payment to the ledger and updating the balance
-            // book.  If the accountant solely adds the payment to the ledger, but does
-            // not update the balance book, they haven’t yet finished recording the payment.
-            RecalculateBalance();
+            // Use a BalanceCalculator service to ensure that when a
+            // payment is recorded, the balance is updated.
+
+            // The double dispatch pattern involves passing an object to a method,
+            // and the method body calls another method on the passed in object,
+            // usually passing in itself as an argument.
+
+            // The intent of the RecordPayment method remains the same: it records
+            // a payment, and updates the balance. The balance on the Fee object
+            // will always be correct. The RecordPayment method now delegates to
+            // a domain service, the IBalanceCalculatorService, for calculation of
+            // the balance. However, the Fee object is still responsible for
+            // maintaining a correct balance. We just call the Calculate method on
+            // the balance calculator, passing in “this”, to figure out what the
+            // actual correct balance can be.
+            Balance = balanceCalculatorService.Calculate(this);
 
             return payment;
-        }
-
-        // It could be argued that the Fee shouldn’t be responsible for how the balance
-        // is calculated, but instead only ensure that when a payment is recorded,
-        // the balance is updated.
-
-        // The problem comes in when calculating the balance becomes more difficult.
-        // We might have a rather complex method for calculating payments, we might
-        // have recurring payments, transfers, debits, credits and so on.  This might
-        // become too much responsibility for the Fee object.
-
-        // Store a calculated balance for performance and querying abilities reasons.
-        private void RecalculateBalance()
-        {
-            var totalApplied = _payments.Sum(payment => payment.Amount);
-            Balance = Amount - totalApplied;
         }
     }
 }
